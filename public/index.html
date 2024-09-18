@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TabDocs</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <!-- FontAwesome Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f1f3f4;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      color: #202124;
+    }
+
+    /* Header */
+    #header {
+      background-color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    /* Logo Section */
+    #logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #logo i {
+      font-size: 48px; /* Larger doc icon */
+      color: #1a73e8;
+    }
+
+    #logo input[type="text"] {
+      font-size: 18px;
+      font-weight: 500;
+      color: #202124;
+      border: none;
+      outline: none;
+      padding: 4px 8px;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      max-width: 300px;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    #save-status {
+      font-size: 12px;
+      color: #5f6368;
+      margin-top: 2px;
+    }
+
+    /* Right Sidebar */
+    #right-sidebar {
+      position: fixed;
+      top: 60px; /* Below header */
+      right: 0;
+      width: 60px;
+      background-color: #ffffff;
+      border-left: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 20px;
+      height: calc(100vh - 60px); /* Full height minus header */
+      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #right-sidebar #user-avatar {
+      width: 40px;
+      height: 40px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 50%;
+      background-color: #1a73e8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      margin-bottom: 20px;
+    }
+
+    #right-sidebar #user-avatar:hover {
+      transform: scale(1.1);
+    }
+
+    .test {
+      height: 40px;
+    }
+
+    .sidebar-icon {
+      font-size: 24px;
+      color: #5f6368;
+      margin: 16px 0;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .sidebar-icon:hover {
+      color: #1a73e8;
+    }
+
+    /* Toolbar */
+    #toolbar {
+      background-color: #ffffff;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #e0e0e0;
+      position: sticky;
+      top: 60px;
+      z-index: 100;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    #toolbar button,
+    #toolbar select,
+    #toolbar input[type="color"] {
+      border: none;
+      background: none;
+      margin: 0 6px;
+      padding: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      color: #5f6368;
+      transition: background-color 0.2s ease;
+    }
+
+    #toolbar button:hover,
+    #toolbar select:hover,
+    #toolbar input[type="color"]:hover {
+      background-color: #f1f3f4;
+      border-radius: 4px;
+    }
+
+    #toolbar select {
+      border: 1px solid #e0e0e0;
+      padding: 6px;
+      border-radius: 4px;
+      background-color: #ffffff;
+    }
+
+    .toolbar-icon {
+      font-size: 20px;
+      color: #5f6368;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .toolbar-group:last-child {
+      border-right: none;
+    }
+
+    /* More Dropdown */
+    #moreTools {
+      position: relative;
+    }
+
+    #moreToolsDropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: #ffffff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      z-index: 100;
+      padding: 8px;
+      border-radius: 4px;
+    }
+
+    #moreToolsDropdown button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 8px;
+      margin: 4px 0;
+      border-radius: 4px;
+    }
+
+    #moreToolsDropdown button:hover {
+      background-color: #f1f3f4;
+    }
+
+    /* Editor Section */
+    #editor-container {
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+      background-color: #f1f3f4;
+      flex-grow: 1;
+      overflow-y: auto;
+      margin-right: 60px; /* Offset for sidebar */
+    }
+
+    #editor {
+      width: 8.5in;
+      height: 11in;
+      background-color: #ffffff;
+      padding: 24px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px; /* Rounded corners */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      font-size: 16px;
+      line-height: 1.6;
+      outline: none;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    #suggestion {
+      color: #888;
+      font-weight: normal;
+    }
+
+    /* Footer */
+    footer {
+      background-color: #ffffff;
+      text-align: center;
+      padding: 12px;
+      font-size: 12px;
+      color: #888;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    /* Share/Publish Buttons */
+    #header-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-left: auto; /* Pushes buttons to the right */
+    }
+
+    .action-btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: bold;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .share-btn {
+      background-color: #1a73e8;
+      color: #ffffff;
+    }
+
+    .publish-btn {
+      background-color: #34a853;
+      color: #ffffff;
+    }
+
+    .profile-btn {
+      background-color: #f5f5f5;
+      border: none;
+      border-radius: 50%;
+      padding: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .profile-btn i {
+      font-size: 24px;
+      color: #5f6368;
+    }
+
+    .profile-btn:hover {
+      background-color: #e0e0e0;
+    }
+
+    /* Collaborators Section */
+    #collaborators {
+      display: flex;
+      align-items: center;
+      margin-left: 16px;
+    }
+
+    .collaborator-avatar {
+      background-size: cover;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #5f6368;
+      margin-left: 6px;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .collaborator-avatar:hover {
+      z-index: 1;
+      transform: scale(1.1);
+    }
+  
+    .dropdown {
+      display: inline-block;
+      position: relative;
+    }
+
+    /* Dropdown button styles */
+    .dropdown {
+      display: inline-block;
+      position: relative;
+    }
+
+    /* Dropdown button styles */
+    .dropdown-btn {
+      background-size: cover;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: #D3E2FD;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #5f6368;
+      margin-left: 6px;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Arrow icon */
+    .arrow-icon {
+      font-size: 13px;
+      color: #041e49;
+    }
+
+    /* Dropdown content (hidden by default) */
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: #f9f9f9;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+      z-index: 1;
+    }
+
+    /* Dropdown content items */
+    .dropdown-content div {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+      cursor: pointer;
+    }
+
+    /* Collaborator avatar in the dropdown */
+    .dropdown-avatar {
+      background-color: #e0e0e0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    /* Show the dropdown on hover */
+    .dropdown.show .dropdown-content {
+      display: block;
+    }
+
+    /* Hover effect */
+    .dropdown-content div:hover {
+      background-color: #f1f1f1;
+    }
+
+    #save-status.saved {
+      color: #34a853; /* Green for saved */
+    }
+
+    #save-status.saving {
+      color: #fbbc05; /* Yellow for saving */
+    }
+
+    /* User Dropdown styling */
+    #UserDropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    #dropdown-toggle {
+      background-color: #e0e0e0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      color: #5f6368;
+    }
+
+    #dropdown-list {
+      display: none;
+      position: absolute;
+      top: 45px;
+      background-color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      padding: 10px;
+      z-index: 1000;
+      min-width: 100px;
+    }
+
+    #dropdown-list.show {
+      display: block;
+    }
+
+    .dropdown-avatar {
+      display: flex;
+      align-items: center;
+      padding: 5px 0;
+    }
+
+    .dropdown-avatar .collaborator-avatar {
+      margin-right: 8px;
+    }
+
+    .dropdown-avatar span {
+      font-size: 14px;
+      color: #5f6368;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div id="header">
+    <div id="logo">
+      <i class="fas fa-file-alt"></i> <!-- Larger doc icon -->
+      <div>
+        <input type="text" id="doc-title" placeholder="Untitled Document" value="Untitled Document">
+        <div id="save-status">Saved to Drive</div> <!-- Save status message -->
+      </div>
+    </div>
+
+    <div id="header-content">
+      <div id="collaborators" style="position: relative; left: 50px;">
+        </div>
+
+      <!-- New Buttons -->
+      <button class="action-btn test" style="background: transparent; position: relative; left: 43px;">
+        <i class="fa-solid fa-clock-rotate-left sidebar-icon" style="position: relative; bottom: 18px;"></i>
+      </button>
+      <button class="action-btn test" style="background: transparent; position: relative; left: 22px;">
+        <i class="fa-solid fa-comments sidebar-icon" style="position: relative; bottom: 18px;"></i>
+      </button>
+      <button class="action-btn test" style="background: transparent;">
+        <i class="fa-solid fa-video sidebar-icon" style="position: relative; bottom: 18px;"></i>
+      </button>
+
+      <button class="action-btn share-btn"><i class="fas fa-share"></i> Share</button>
+      <button class="action-btn publish-btn"><i class="fas fa-upload"></i> Publish</button>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div id="toolbar" style="width: 1410.1px;">
+    <!-- Font Family and Size -->
+    <div class="toolbar-group">
+      <select id="fontName" onchange="formatText('fontName', this.value)">
+        <option value="Arial">Arial</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Courier New">Courier New</option>
+      </select>
+      <select id="fontSize" onchange="formatText('fontSize', this.value)">
+        <option value="3">Normal</option>
+        <option value="4">Medium</option>
+        <option value="5">Large</option>
+        <option value="6">X-Large</option>
+      </select>
+    </div>
+
+    <!-- Text Formatting -->
+    <div class="toolbar-group">
+      <button onclick="formatText('bold')" title="Bold">
+        <i class="toolbar-icon fas fa-bold"></i>
+      </button>
+      <button onclick="formatText('italic')" title="Italic">
+        <i class="toolbar-icon fas fa-italic"></i>
+      </button>
+      <button onclick="formatText('underline')" title="Underline">
+        <i class="toolbar-icon fas fa-underline"></i>
+      </button>
+      <button onclick="formatText('strikeThrough')" title="Strike Through">
+        <i class="toolbar-icon fas fa-strikethrough"></i>
+      </button>
+    </div>
+
+    <!-- Alignment -->
+    <div class="toolbar-group">
+      <button onclick="formatText('justifyLeft')" title="Left Align">
+        <i class="toolbar-icon fas fa-align-left"></i>
+      </button>
+      <button onclick="formatText('justifyCenter')" title="Center Align">
+        <i class="toolbar-icon fas fa-align-center"></i>
+      </button>
+      <button onclick="formatText('justifyRight')" title="Right Align">
+        <i class="toolbar-icon fas fa-align-right"></i>
+      </button>
+      <button onclick="formatText('justifyFull')" title="Justify">
+        <i class="toolbar-icon fas fa-align-justify"></i>
+      </button>
+    </div>
+
+    <!-- Text Color -->
+    <div class="toolbar-group">
+      <input type="color" id="textColor" onchange="formatText('foreColor', this.value)">
+      <button onclick="formatText('removeFormat')" title="Remove Formatting">
+        <i class="toolbar-icon fas fa-eraser"></i>
+      </button>
+    </div>
+
+    <!-- More Tools Dropdown -->
+    <div id="moreTools" class="toolbar-group">
+      <button onclick="toggleDropdown()" id="moreToolsButton" title="More Tools">
+        <i class="toolbar-icon fas fa-angle-right"></i>
+      </button>
+      <div id="moreToolsDropdown">
+        <button onclick="formatText('superscript')" title="Superscript">
+          <i class="toolbar-icon fas fa-superscript"></i> 
+        </button>
+        <button onclick="formatText('subscript')" title="Subscript">
+          <i class="toolbar-icon fas fa-subscript"></i> 
+        </button>
+        <button onclick="toggleCase()" title="Toggle Case">
+          <i class="toolbar-icon fas fa-text-height"></i>  
+        </button>
+        <button onclick="formatText('cut')" title="Cut">
+          <i class="toolbar-icon fas fa-cut"></i> 
+        </button>
+        <button onclick="formatText('copy')" title="Copy">
+          <i class="toolbar-icon fas fa-copy"></i> 
+        </button>
+        <button onclick="formatText('paste')" title="Paste">
+          <i class="toolbar-icon fas fa-paste"></i> 
+        </button>
+        <button onclick="formatText('insertUnorderedList')" title="Bullet List">
+          <i class="toolbar-icon fas fa-list-ul"></i> 
+        </button>
+        <button onclick="formatText('insertOrderedList')" title="Numbered List">
+          <i class="toolbar-icon fas fa-list-ol"></i> 
+        </button>
+        <button onclick="formatText('outdent')" title="Decrease Indent">
+          <i class="toolbar-icon fas fa-outdent"></i>  
+        </button>
+        <button onclick="formatText('indent')" title="Increase Indent">
+          <i class="toolbar-icon fas fa-indent"></i>  
+        </button>
+        <button onclick="formatText('undo')" title="Undo">
+          <i class="toolbar-icon fas fa-undo"></i> 
+        </button>
+        <button onclick="formatText('redo')" title="Redo">
+          <i class="toolbar-icon fas fa-redo"></i> 
+        </button>
+        <button onclick="insertLink()" title="Insert Link">
+          <i class="toolbar-icon fas fa-link"></i>  
+        </button>
+        <button onclick="insertImage()" title="Insert Image">
+          <i class="toolbar-icon fas fa-image"></i>  
+        </button>
+        <button onclick="formatText('insertHorizontalRule')" title="Insert Horizontal Rule">
+          <i class="toolbar-icon fas fa-minus"></i>   
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Sidebar -->
+  <div id="right-sidebar">
+    <i class="fas fa-user sidebar-icon"></i>
+    <i class="fa-solid fa-house sidebar-icon" title="Dashboard"></i>
+    <i class="fa-solid fa-calendar sidebar-icon" title="Calendar"></i>
+    <i class="fa-solid fa-chalkboard-user sidebar-icon" title="Teaching Tools"></i>
+    <i class="fa-solid fa-box-archive sidebar-icon" title="Archive"></i>
+  </div>
+
+  <!-- Editor -->
+  <div id="editor-container">
+    <div id="editor" contenteditable="true" oninput="syncContent()" oninput="detectInput()" onkeydown="handleKeyDown(event)">
+      <p></p>
+    </div>
+  </div>
+
+
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- JavaScript -->
+  <script>
+    const socket = io();  // Connect to the server via Socket.io
+    const editor = document.getElementById('editor');
+    const saveStatus = document.getElementById('save-status');
+    const collaboratorsDiv = document.getElementById('collaborators');
+    let collaborators = [];
+    let saveTimeout;
+
+    // Get the docId from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const docId = urlParams.get('docid');
+
+    // Join the document room for real-time collaboration
+    socket.emit('joinDoc', docId);
+
+    // Load the document content on initial load
+    socket.on('loadDoc', (content) => {
+      editor.innerHTML = content;  // Set the editor's content with the document content
+    });
+
+    // Update the collaborators section
+    socket.on('updateCollaborators', (collaborators) => {
+      collaboratorsDiv.innerHTML = '';  // Clear the current collaborators
+      collaborators.forEach(collaborator => {
+        const avatar = document.createElement('div');
+        avatar.className = 'collaborator-avatar';
+        avatar.textContent = collaborator.initial;  // Display user initials
+        collaboratorsDiv.appendChild(avatar);
+      });
+    });
+
+    // Sync content on input
+    editor.addEventListener('input', () => {
+      const content = editor.innerHTML;  // Get the updated content
+      socket.emit('syncContent', content);  // Send only the content to the server
+
+      // Show "Saving..." status
+      showSaveStatus('saving', 'Saving...');
+    });
+
+    // Update the editor content when other users make changes
+    socket.on('updateDoc', (content) => {
+      editor.innerHTML = content;  // Update editor with the received content
+    });
+
+    // Show "Saved to Drive" when content is successfully saved
+    socket.on('contentSaved', () => {
+      showSaveStatus('saved', 'Saved to Drive');
+    });
+
+    // Helper function to show save status
+    function showSaveStatus(statusClass, message) {
+      clearTimeout(saveTimeout);
+      saveStatus.classList.remove('saved', 'saving');
+      saveStatus.classList.add(statusClass);
+      saveStatus.textContent = message;
+
+      // Hide "Saved" status after 3 seconds
+      if (statusClass === 'saved') {
+        saveTimeout = setTimeout(() => {
+          saveStatus.textContent = 'All changes saved';
+        }, 3000);
+      }
+    }
+
+    function captureFirstPageAsImage() {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Set canvas size to resemble an A4 page or any standard size
+      canvas.width = 800;
+      canvas.height = 1000;
+
+      // Get the first part of the document content (for example, the first 1000 characters)
+      const content = editor.innerText.slice(0, 1000);  // Use `innerText` to get the text content
+
+      // Set font and text settings (you can adjust these based on the document's real style)
+      ctx.font = '16px Arial';
+      ctx.fillStyle = '#000';
+
+      // Draw the first page content onto the canvas
+      const lines = content.split('\n');
+      lines.forEach((line, index) => {
+        ctx.fillText(line, 10, 50 + (index * 20));  // Draw each line of text with some spacing
+      });
+
+      // Convert the canvas to a data URL (image format)
+      return canvas.toDataURL('image/png');
+    }
+
+    // Generate the image and send it back to the dashboard
+    function sendDocumentImageToDashboard(docId) {
+      const imgURL = captureFirstPageAsImage();
+
+      // Temporarily store the generated image in localStorage for simplicity
+      localStorage.setItem(`docImage-${docId}`, imgURL);  // Store image in localStorage
+
+      // You could also send the image to the server using an API if needed
+      // fetch('/save-document-image', { method: 'POST', body: JSON.stringify({ docId, imgURL }) });
+    }
+
+    // Call this function when the document is saved or after content is loaded
+    sendDocumentImageToDashboard(docId);  // Use `docId` instead of `documentId`
+
+    function toggleDropdown() {
+      const dropdownList = document.getElementById('dropdown-list');
+      dropdownList.classList.toggle('show');  // Toggle show class
+
+      // Toggle between > and v
+      const toggleIcon = document.getElementById('dropdown-toggle').textContent;
+      document.getElementById('dropdown-toggle').textContent = toggleIcon === '>' ? 'v' : '>';
+    }
+
+    // Update the collaborators section
+    socket.on('updateCollaborators', (collaborators) => {
+      collaboratorsDiv.innerHTML = '';  // Clear the current collaborators
+
+      // Show up to 5 collaborators
+      collaborators.slice(0, 5).forEach(collaborator => {
+        const avatar = document.createElement('div');
+        avatar.className = 'collaborator-avatar';
+        avatar.textContent = collaborator.initial;  // Display user initials
+        collaboratorsDiv.appendChild(avatar);
+      });
+
+      // Handle extra collaborators
+      if (collaborators.length > 5) {
+        const dropdownDiv = document.createElement('div');
+        dropdownDiv.id = 'UserDropdown';
+
+        // Dropdown toggle button
+        const dropdownToggle = document.createElement('div');
+        dropdownToggle.id = 'dropdown-toggle';
+        dropdownToggle.textContent = '>';  // Start with ">" for closed dropdown
+        dropdownToggle.onclick = toggleDropdown;
+        dropdownDiv.appendChild(dropdownToggle);
+
+        // Dropdown list for remaining collaborators
+        const dropdownList = document.createElement('div');
+        dropdownList.id = 'dropdown-list';
+        collaborators.slice(5).forEach(collaborator => {
+          const dropdownItem = document.createElement('div');
+          dropdownItem.className = 'dropdown-avatar';
+          dropdownItem.innerHTML = `
+            <div class="collaborator-avatar">${collaborator.initial}</div>
+            <span>User ${collaborator.userId}</span>
+          `;
+          dropdownList.appendChild(dropdownItem);
+        });
+
+        dropdownDiv.appendChild(dropdownList);
+        collaboratorsDiv.appendChild(dropdownDiv);
+      }
+    });
+
+    function detectMathExpression() {
+      const content = editor.innerText;  // Get the plain text of the editor
+
+      // Regular expression to detect math expression with `=`
+      const mathMatch = content.match(/(\d+)\s*([\+\-\*\/])\s*(\d+)(\s*([\+\-\*\/])\s*(\d+))*\s*=$/);
+      if (mathMatch) {
+        const expression = mathMatch[0];
+        const numbers = expression.match(/\d+/g);
+        const operators = expression.match(/[\+\-\*\/]/g);
+        let result = parseFloat(numbers[0]);
+
+        // Apply BODMAS rules
+        for (let i = 0; i < operators.length; i++) {
+          const operator = operators[i];
+          const number = parseFloat(numbers[i + 1]);
+
+          if (operator === '*') result *= number;
+          else if (operator === '/') result /= number;
+          else if (operator === '+') result += number;
+          else if (operator === '-') result -= number;
+        }
+
+        // Show the suggestion
+        showSuggestion(`${result}`);
+        currentSuggestion = `${result}`;
+      }
+    }
+
+    // Function to show the math suggestion
+    function showSuggestion(text) {
+      const suggestion = document.createElement('span');
+      suggestion.id = 'suggestion';
+      suggestion.style.color = '#888';
+      suggestion.textContent = ` ${text}`;
+      
+      // Append suggestion after current content
+      editor.appendChild(suggestion);
+    }
+
+    // Function to accept the suggestion with Tab
+    editor.addEventListener('keydown', function(event) {
+      if (event.key === 'Tab' && currentSuggestion) {
+        event.preventDefault();
+        const suggestionElement = document.getElementById('suggestion');
+        if (suggestionElement) {
+          suggestionElement.style.color = '';  // Set normal color
+          suggestionElement.id = '';  // Remove suggestion ID
+        }
+        currentSuggestion = null;
+      }
+    });
+
+    // Detect input and check for math expressions
+    editor.addEventListener('input', detectMathExpression);
+
+    // Track cursor position and selection range
+    let lastRange = null;
+
+    function saveSelection() {
+      const selection = window.getSelection();
+      lastRange = selection.getRangeAt(0).cloneRange();
+    }
+
+    function restoreSelection() {
+      if (lastRange) {
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(lastRange);
+      }
+    }
+
+    // Sync selection on input
+    editor.addEventListener('input', function() {
+      saveSelection();
+      syncContent();
+    });
+
+    // Restore selection when content is updated
+    socket.on('update', function(content) {
+      restoreSelection();
+      editor.innerHTML = content;
+    });
+
+    let currentSuggestion = null;
+
+    function formatText(command, value) {
+      document.execCommand(command, false, value);
+    }
+
+    function insertLink() {
+      const url = prompt("Enter the URL");
+      if (url) {
+        document.execCommand('createLink', false, url);
+      }
+    }
+
+    function insertImage() {
+      const url = prompt("Enter the Image URL");
+      if (url) {
+        document.execCommand('insertImage', false, url);
+      }
+    }
+
+    function toggleCase() {
+      const selection = window.getSelection().toString();
+      const isUpperCase = selection === selection.toUpperCase();
+      const newText = isUpperCase ? selection.toLowerCase() : selection.toUpperCase();
+      document.execCommand('insertText', false, newText);
+    }
+
+    function detectInput() {
+      const editor = document.getElementById('editor');
+      let content = editor.innerText;  // Use innerText to get the text without HTML tags
+
+      // Remove any previous suggestion spans
+      const suggestionSpan = editor.querySelector('#suggestion');
+      if (suggestionSpan) {
+        suggestionSpan.remove();
+      }
+
+      // Detect simple math expression followed by '='
+      const mathMatch = content.match(/(\d+)\s*([\+\-\*\/])\s*(\d+)(\s*([\+\-\*\/])\s*(\d+))*\s*=$/);
+      if (mathMatch) {
+        const expression = mathMatch[0];
+        const numbers = expression.match(/\d+/g);
+        const operators = expression.match(/[\+\-\*\/]/g);
+        let result = parseFloat(numbers[0]);
+        for (let i = 0; i < operators.length; i++) {
+          const operator = operators[i];
+          const number = parseFloat(numbers[i + 1]);
+          if (operator === '*') {
+            result *= number;
+          } else if (operator === '/') {
+            result /= number;
+          } else if (operator === '+') {
+            result += number;
+          } else if (operator === '-') {
+            result -= number;
+          }
+        }
+        showSuggestion(`${result}`);
+        currentSuggestion = `${result}`;
+      }
+
+      // Detect currency conversion pattern
+      const currencyMatch = content.match(/(\d+)\s*(USD|EUR|GBP|JPY)\s+is$/i);
+      if (currencyMatch) {
+        const [_, amount, currency] = currencyMatch;
+        convertCurrency(amount, currency).then(result => {
+          showSuggestion(`${result}`);
+          currentSuggestion = `${result}`;
+        });
+      }
+    }
+
+    function showSuggestion(text) {
+      const editor = document.getElementById('editor');
+      const suggestion = document.createElement('span');
+      suggestion.id = 'suggestion';
+      suggestion.style.color = '#888';
+      suggestion.textContent = ` ${text}`;
+
+      // Insert the suggestion at the current cursor position
+      const selection = window.getSelection();
+      const range = selection.getRangeAt(0);
+      range.insertNode(suggestion);
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    async function convertCurrency(amount, currency) {
+      const targetCurrency = "EUR"; // For example, converting to EUR
+      const apiKey = "05552349a13743563c3ab565"; // Replace with your API key
+      const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`);
+      const data = await response.json();
+      const rate = data.rates[targetCurrency];
+      return `${(amount * rate).toFixed(2)} ${targetCurrency}`;
+    }
+
+    function handleKeyDown(event) {
+      if (event.key === 'Tab' && currentSuggestion) {
+        event.preventDefault();
+        const editor = document.getElementById('editor');
+        const suggestionSpan = editor.querySelector('#suggestion');
+        if (suggestionSpan) {
+          suggestionSpan.style.color = ''; // Set the color to normal text color
+          suggestionSpan.id = ''; // Remove the ID so it's no longer a suggestion
+        }
+        currentSuggestion = null;
+      }
+    }
+
+    function toggleDropdown() {
+      const dropdown = document.getElementById('moreToolsDropdown');
+      const button = document.getElementById('moreToolsButton');
+      if (dropdown.style.display === 'flex') {
+        dropdown.style.display = 'none';
+        button.innerHTML = '<i class="toolbar-icon fas fa-angle-right"></i>';
+      } else {
+        dropdown.style.display = 'flex';
+        button.innerHTML = '<i class="toolbar-icon fas fa-angle-down"></i>';
+      }
+    }
+
+    // Define syncContent function to avoid ReferenceError
+    function syncContent() {
+      const content = editor.innerHTML;  // Get the updated content
+      socket.emit('syncContent', content);  // Send only the content to the server
+    }
+  </script>
+  </script>
+</body>
+</body>
+</html>

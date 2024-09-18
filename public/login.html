@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <style>
+/* styles.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background: radial-gradient(circle, #e0eafc, #cfdef3); /* Soft radial gradient */
+  display: flex;
+  justify-content: center; /* Center form horizontally */
+  align-items: center; /* Center form vertically */
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent scrollbars */
+  position: relative; /* For background animation */
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(60deg, rgba(255, 255, 255, 0.15), transparent);
+  animation: backgroundAnimation 20s linear infinite;
+  z-index: -1; /* Behind the form */
+}
+
+@keyframes backgroundAnimation {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+
+form {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  transform: translateY(-20px);
+  opacity: 0;
+  animation: fadeInUp 0.6s forwards;
+  transition: transform 0.3s ease;
+}
+
+form:hover {
+  transform: translateY(-15px); /* Slight lift effect */
+}
+
+@keyframes fadeInUp {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+h2 {
+  margin: 0 0 1.5rem;
+  font-size: 30px;
+  color: #333;
+  text-align: center;
+  font-weight: 700;
+  position: relative;
+}
+
+h2::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  width: 60%;
+  height: 4px;
+  background: linear-gradient(135deg, #ff7e5f, #feb47b);
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+label {
+  display: block;
+  margin: 0 0 0.5rem;
+  font-size: 14px;
+  color: #666;
+}
+
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  box-sizing: border-box;
+  margin: 0 0 1rem;
+  font-size: 14px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.35);
+  outline: none;
+}
+
+button {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #ff7e5f, #feb47b);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+button:hover {
+  background: linear-gradient(135deg, #feb47b, #ff7e5f);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+.google-login {
+  background: #fff; /* White background */
+  color: #333; /* Dark text color */
+  font-size: 16px;
+  font-weight: 500;
+  border: 2px solid #ddd; /* Light border */
+  margin: 1rem 0; /* Space between buttons */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem; /* Space between icon and text */
+}
+
+.google-login .google-icon {
+  width: 24px; /* Icon size */
+  height: 24px;
+}
+
+p {
+  text-align: center;
+  margin: 1rem 0 0;
+  font-size: 14px;
+  color: #666;
+}
+
+a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+input::placeholder {
+  color: #999;
+}
+
+input + span {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin: 0.25rem 0;
+}
+
+/* Include the "Don't have an account?" text within the form frame */
+.form-footer {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.form-footer a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.form-footer a:hover {
+  text-decoration: underline;
+}
+  </style>
+  <!-- Add Google Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body>
+  <form action="/login" method="POST" id="loginForm">
+    <h2>Login</h2>
+    <label for="username">Username</label>
+    <input type="text" name="username" required placeholder="Enter your username">
+    
+    <label for="password">Password</label>
+    <input type="password" name="password" required placeholder="Enter your password">
+
+    <button type="submit">Login</button>
+
+    <!-- Google Login Button -->
+    <button type="button" class="google-login">
+      <img src="https://www.google.com/images/branding/product/ico/googleg_lodp.ico" alt="Google Icon" class="google-icon">
+      Login with Google
+    </button>
+
+    <div class="form-footer">
+      <p>Don't have an account? <a href="/register">Sign Up</a></p>
+    </div>
+  </form>
+
+  <script src="js/login.js"></script>
+</body>
+</html>
