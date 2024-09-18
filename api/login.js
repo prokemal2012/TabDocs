@@ -1,13 +1,14 @@
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 const cookie = require('cookie');
-const { getCookie } = require('../utils/cookies');  // You might need to implement this utility
+const { parse } = require('cookie');
+const { getCookie } = require('../utils/cookies');  // Create this utility for cookie handling
 
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
   database: 'postgres',
-  password: process.env.POSTGRES_PASSWORD,  // Use environment variables
+  password: process.env.POSTGRES_PASSWORD,
   port: 5432,
 });
 
@@ -22,10 +23,9 @@ module.exports = async (req, res) => {
     if (user.rows.length > 0 && bcrypt.compareSync(password, user.rows[0].password)) {
       res.setHeader('Set-Cookie', cookie.serialize('userId', user.rows[0].id, { httpOnly: true }));
       res.writeHead(302, { Location: '/dashboard' });
-      res.end();
     } else {
       res.writeHead(302, { Location: '/login' });
-      res.end();
     }
+    res.end();
   }
 };

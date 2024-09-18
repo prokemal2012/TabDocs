@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
 const { v4: uuidv4 } = require('uuid');
-const { getCookie } = require('../utils/cookies');
 const db = require('../db');  // Adjust the path if needed
+const { getCookie } = require('../utils/cookies');
 
 const pool = new Pool({
   user: 'postgres',
