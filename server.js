@@ -8,6 +8,7 @@ const socketIo = require('socket.io');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const db = require('./db');  // Import the db.js file
+const port = process.env.PORT || 3000;
 
 const app = express();
 const server = http.createServer(app);
@@ -159,6 +160,6 @@ io.on('connection', (socket) => {
 });
 
 // Start the server
-server.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
+server.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
 });
