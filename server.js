@@ -8,9 +8,9 @@ const socketIo = require('socket.io');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const db = require('./db');  // Import the db.js file
-const port = process.env.PORT || 3000;
 
 const app = express();
+const port = process.env.PORT || 3000;
 const server = http.createServer(app);
 const io = socketIo(server);
 
@@ -37,10 +37,11 @@ function isAuthenticated(req, res, next) {
   }
 }
 
-// Collaborators storage per document
-const collaboratorsByDoc = {};
-
 // Routes
+app.get('/', isAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
@@ -51,7 +52,7 @@ app.post('/login', async (req, res) => {
 
   if (user.rows.length > 0 && bcrypt.compareSync(password, user.rows[0].password)) {
     res.cookie('userId', user.rows[0].id);
-    res.redirect('/dashboard');
+    res.redirect('/');
   } else {
     res.redirect('/login');
   }
@@ -67,10 +68,6 @@ app.post('/register', async (req, res) => {
 
   await pool.query('INSERT INTO users (username, password) VALUES ($1, $2)', [username, hashedPassword]);
   res.redirect('/login');
-});
-
-app.get('/dashboard', isAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
 // Route to create a new document and track the creator's username
